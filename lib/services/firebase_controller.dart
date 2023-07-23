@@ -86,14 +86,21 @@ class FirebaseController {
   static Future<bool> addBooking(HotelModel hotelModel, String uid) async {
 
     bool status = false;
+    bool hotelExists = false;
 
     try{
-      DocumentSnapshot doc = await _instance.collection(Constants.bookingDataCollection).doc(uid + (hotelModel.hotelName ?? "")).get();
-      if(doc.exists){
+      QuerySnapshot doc = await _instance.collection(Constants.bookingDataCollection).doc(uid).collection(uid).get();
+      for(int i = 0 ; i < doc.docs.length ; i++){
+        if(doc.docs[i][Constants.hotelName] == hotelModel.hotelName){
+          hotelExists = true;
+          break;
+        }
+      }
+      if(hotelExists){
         Utils.showSnackBar("Booking already exists for this hotel");
       }
       else{
-        await _instance.collection(Constants.bookingDataCollection).doc(uid + (hotelModel.hotelName ?? "")).set(hotelModel.toJson());
+        await _instance.collection(Constants.bookingDataCollection).doc(uid).collection(uid).add(hotelModel.toJson());
         status = true;
       }
     } on FirebaseException catch(e){
@@ -102,6 +109,17 @@ class FirebaseController {
 
     return status;
   }
+
+  static Future<List<HotelModel>> getBookedData(String uid) async {
+    List<HotelModel> hotels;
+    QuerySnapshot querySnapshot =
+    await _instance.collection(Constants.bookingDataCollection).doc(uid).collection(uid).get();
+    hotels = querySnapshot.docs
+        .map((doc) => HotelModel.fromJson(doc.data() as Map<String, dynamic>))
+        .toList();
+    return hotels;
+  }
+
 
   static Future<User?> signOut() async {
     FirebaseAuth auth = FirebaseAuth.instance;

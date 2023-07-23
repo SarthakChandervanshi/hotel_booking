@@ -274,7 +274,7 @@ class HomeController extends GetxController{
 
   Future<void> getBookedData() async {
     gotBookedHotels.value = false;
-    bookedHotels.value = await FirebaseController.getData(Constants.bookingDataCollection);
+    bookedHotels.value = await FirebaseController.getBookedData(FirebaseController.getCurrentUser()?.uid ?? "");
     gotBookedHotels.value = true;
   }
 }
