@@ -12,4 +12,4 @@ User can also book their hotels and view the booked hotels in the other tab.
 
 `Java Version: JDK 11`
 
-###**To run the project: flutter run --release**
+**To run the project: flutter run --release**
